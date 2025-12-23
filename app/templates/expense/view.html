@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}费用记录详情{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h1 class="page-title">
+        <i class="fas fa-file-invoice-dollar"></i>费用记录详情
+    </h1>
+    <a href="{{ url_for('main.expense_list') }}" class="btn btn-primary mb-4">
+        <i class="fas fa-arrow-left"></i>返回列表
+    </a>
+    
+    <div class="info-section">
+        <div class="info-item">
+            <span class="info-label">费用单号:</span>
+            <span class="info-value">{{ expense.expense_number }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">金额:</span>
+            <span class="info-value">¥{{ expense.amount }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">费用类型:</span>
+            <span class="info-value">{{ expense.expense_type }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">状态:</span>
+            <span class="info-value">
+                <span class="status-badge status-{{ expense.status }}">{{ expense.status }}</span>
+            </span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">费用说明:</span>
+            <span class="info-value">{{ expense.description }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">创建时间:</span>
+            <span class="info-value">{{ expense.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        {% if expense.approval_time %}
+        <div class="info-item">
+            <span class="info-label">审批时间:</span>
+            <span class="info-value">{{ expense.approval_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        {% endif %}
+        {% if expense.payment_time %}
+        <div class="info-item">
+            <span class="info-label">支付时间:</span>
+            <span class="info-value">{{ expense.payment_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

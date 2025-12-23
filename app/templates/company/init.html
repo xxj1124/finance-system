@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}企业初始化{% endblock %}
+
+{% block content %}
+    <div class="content-card">
+        <h1 class="page-title">
+            <i class="fas fa-building"></i>
+            企业初始化
+        </h1>
+        
+        <!-- 显示消息 -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST">
+            <div class="mb-4">
+                <label for="name" class="form-label">企业名称：</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            
+            <div class="mb-4">
+                <label for="registered_capital" class="form-label">注册资金：</label>
+                <input type="number" id="registered_capital" name="registered_capital" step="0.01" class="form-control" required>
+            </div>
+            
+            <div class="mb-4">
+                <label for="industry" class="form-label">行业类型：</label>
+                <input type="text" id="industry" name="industry" class="form-control" required>
+            </div>
+            
+            <div class="mb-4">
+                <label for="accounting_period" class="form-label">会计期间：</label>
+                <select id="accounting_period" name="accounting_period" class="form-control" required>
+                    <option value="月度">月度</option>
+                    <option value="季度">季度</option>
+                    <option value="年度">年度</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label for="currency" class="form-label">币种：</label>
+                <select id="currency" name="currency" class="form-control" required>
+                    <option value="CNY">人民币(CNY)</option>
+                    <option value="USD">美元(USD)</option>
+                    <option value="EUR">欧元(EUR)</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">启用模块：</label>
+                <div class="d-flex flex-wrap gap-3" style="margin-top: var(--spacing-sm);">
+                    <label class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="modules" value="采购管理" checked class="form-check-input"> 
+                        <span>采购管理</span>
+                    </label>
+                    <label class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="modules" value="销售管理" checked class="form-check-input"> 
+                        <span>销售管理</span>
+                    </label>
+                    <label class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="modules" value="费用管理" checked class="form-check-input"> 
+                        <span>费用管理</span>
+                    </label>
+                    <label class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="modules" value="会计核算" checked class="form-check-input"> 
+                        <span>会计核算</span>
+                    </label>
+                    <label class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="modules" value="财务报表" checked class="form-check-input"> 
+                        <span>财务报表</span>
+                    </label>
+                    <label class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="modules" value="预算管理" checked class="form-check-input"> 
+                        <span>预算管理</span>
+                    </label>
+                    <label class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="modules" value="税务处理" checked class="form-check-input"> 
+                        <span>税务处理</span>
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check"></i>
+                初始化企业
+            </button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}费用记录列表{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1 class="page-title">
+        <i class="fas fa-file-invoice-dollar"></i>
+        费用记录列表
+    </h1>
+    
+    <!-- 显示消息 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('main.expense_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            添加费用记录
+        </a>
+    </div>
+    
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>费用单号</th>
+                <th>金额</th>
+                <th>费用类型</th>
+                <th>状态</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.id }}</td>
+                    <td>{{ expense.expense_number }}</td>
+                    <td>¥{{ expense.amount }}</td>
+                    <td>{{ expense.expense_type }}</td>
+                    <td><span class="status-badge status-{{ expense.status }}">{{ expense.status }}</span></td>
+                    <td>{{ expense.create_time.strftime('%Y-%m-%d') }}</td>
+                    <td class="d-flex gap-2">
+                        <a href="{{ url_for('main.expense_view', id=expense.id) }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-eye"></i>
+                            查看
+                        </a>
+                        {% if expense.status == 'pending' %}
+                            <a href="{{ url_for('main.expense_edit', id=expense.id) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                                编辑
+                            </a>
+                            {% if session['role'] == 'admin' %}
+                                <a href="{{ url_for('main.expense_approve', id=expense.id) }}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-check"></i>
+                                    审批
+                                </a>
+                                <a href="{{ url_for('main.expense_reject', id=expense.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('确定要拒绝这个费用记录吗？')">
+                                    <i class="fas fa-times"></i>
+                                    拒绝
+                                </a>
+                            {% endif %}
+                        {% elif expense.status == 'approved' %}
+                            {% if session['role'] == 'admin' %}
+                                <a href="{{ url_for('main.expense_pay', id=expense.id) }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-credit-card"></i>
+                                    支付
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

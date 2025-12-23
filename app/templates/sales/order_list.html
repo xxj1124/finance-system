@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}销售订单列表 - 销售管理{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1 class="page-title">
+        <i class="fas fa-shopping-cart"></i>
+        销售订单列表
+    </h1>
+    
+    <!-- 显示消息 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('main.sales_order_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            添加销售订单
+        </a>
+    </div>
+    
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>订单编号</th>
+                <th>客户</th>
+                <th>总金额</th>
+                <th>税率</th>
+                <th>税额</th>
+                <th>支付方式</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.customer.name }}</td>
+                    <td>¥{{ order.total_amount }}</td>
+                    <td>{{ order.tax_rate }}%</td>
+                    <td>¥{{ order.tax_amount }}</td>
+                    <td>{{ order.payment_method }}</td>
+                    <td><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('main.sales_order_view', id=order.id) }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-eye"></i>
+                                查看
+                            </a>
+                            {% if order.status == 'pending' %}
+                                {% if session['role'] == 'admin' %}
+                                    <a href="{{ url_for('main.sales_order_approve', id=order.id) }}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-check-circle"></i>
+                                        审批
+                                    </a>
+                                    <a href="{{ url_for('main.sales_order_cancel', id=order.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('确定要取消这个订单吗？')">
+                                        <i class="fas fa-times-circle"></i>
+                                        取消
+                                    </a>
+                                {% endif %}
+                            {% elif order.status == 'approved' %}
+                                {% if session['role'] == 'admin' %}
+                                    <a href="{{ url_for('main.sales_order_complete', id=order.id) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-clipboard-check"></i>
+                                        完成
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="9" class="text-center">暂无销售订单数据</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+# Virtual environment
+venv/
+.env
+
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Log files
+*.log
+finance.log
+
+# Database files
+*.db
+instance/
+
+# IDE configuration
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating system files
+Thumbs.db
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Production
+build/
+dist/
+*.egg-info/
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

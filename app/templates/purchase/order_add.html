@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}添加采购订单 - 采购管理{% endblock %}
+
+{% block content %}
+
+    <script>
+        // 添加新的订单项
+        function addItem() {
+            const container = document.getElementById('items-container');
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <div class="form-group">
+                    <label>项目名称</label>
+                    <input type="text" name="item_name[]" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>数量</label>
+                    <input type="number" name="quantity[]" step="0.01" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>单价</label>
+                    <input type="number" name="unit_price[]" step="0.01" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>金额</label>
+                    <input type="number" name="amount[]" step="0.01" class="form-control" readonly>
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeItem(this)">删除</button>
+            `;
+            container.appendChild(row);
+        }
+        
+        // 删除订单项
+        function removeItem(button) {
+            const row = button.closest('.item-row');
+            row.remove();
+        }
+        
+        // 计算订单项金额
+        document.addEventListener('input', function(e) {
+            if (e.target.name === 'quantity[]' || e.target.name === 'unit_price[]') {
+                const row = e.target.closest('.item-row');
+                const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
+                const unitPrice = parseFloat(row.querySelector('input[name="unit_price[]"]').value) || 0;
+                const amount = row.querySelector('input[name="amount[]"]');
+                amount.value = (quantity * unitPrice).toFixed(2);
+            }
+        });
+    </script>
+            <!-- 显示消息 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <h2><i class="fas fa-shopping-bag"></i>添加采购订单</h2>
+            <a href="{{ url_for('main.purchase_order_list') }}" class="btn btn-secondary mt-3">返回列表</a>
+            
+            <form method="POST" class="mt-4">
+                <div class="form-group">
+                    <label for="supplier_id">供应商：</label>
+                    <select id="supplier_id" name="supplier_id" class="form-control" required>
+                        <option value="">请选择供应商</option>
+                        {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tax_rate">税率：</label>
+                    <input type="number" id="tax_rate" name="tax_rate" step="0.01" min="0" max="1" value="0.13" class="form-control" required>
+                    <small>例如：0.13表示13%</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment_method">支付方式：</label>
+                    <select id="payment_method" name="payment_method" class="form-control" required>
+                        <option value="银行转账">银行转账</option>
+                        <option value="现金">现金</option>
+                        <option value="支票">支票</option>
+                        <option value="在线支付">在线支付</option>
+                    </select>
+                </div>
+                
+                <div class="order-items border p-4 rounded mt-4">
+                    <h3>订单明细</h3>
+                    <div id="items-container">
+                        <!-- 默认的第一个订单项 -->
+                        <div class="item-row">
+                            <div class="form-group">
+                                <label>项目名称</label>
+                                <input type="text" name="item_name[]" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>数量</label>
+                                <input type="number" name="quantity[]" step="0.01" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>单价</label>
+                                <input type="number" name="unit_price[]" step="0.01" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>金额</label>
+                                <input type="number" name="amount[]" step="0.01" class="form-control" readonly>
+                            </div>
+                            <div></div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-secondary" onclick="addItem()">添加项目</button>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <a href="{{ url_for('main.purchase_order_list') }}" class="btn btn-secondary">取消</a>
+                </div>
+            </form>
+{% endblock %}

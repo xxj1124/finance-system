@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}供应商列表 - 采购管理{% endblock %}
+
+{% block content %}
+    <!-- 显示消息 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <h2><i class="fas fa-building"></i>供应商列表</h2>
+    <a href="{{ url_for('main.supplier_add') }}" class="btn btn-primary">添加供应商</a>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>供应商名称</th>
+                <th>联系人</th>
+                <th>电话</th>
+                <th>邮箱</th>
+                <th>地址</th>
+                <th>税号</th>
+                <th>银行账号</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for supplier in suppliers %}
+            <tr>
+                <td>{{ supplier.id }}</td>
+                <td>{{ supplier.name }}</td>
+                <td>{{ supplier.contact }}</td>
+                <td>{{ supplier.phone }}</td>
+                <td>{{ supplier.email }}</td>
+                <td>{{ supplier.address }}</td>
+                <td>{{ supplier.tax_number }}</td>
+                <td>{{ supplier.bank_account }}</td>
+                <td>
+                    <a href="{{ url_for('main.supplier_edit', supplier_id=supplier.id) }}" class="btn btn-secondary">编辑</a>
+                    {% if session['role'] == 'admin' %}
+                        <a href="{{ url_for('main.supplier_delete', supplier_id=supplier.id) }}" class="btn btn-danger" onclick="return confirm('确定要删除这个供应商吗？')">删除</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center;">暂无供应商数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

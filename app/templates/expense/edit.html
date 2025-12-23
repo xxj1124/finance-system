@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}编辑费用记录{% endblock %}
+
+{% block content %}
+<div class="content-card" style="max-width: 600px; margin: 0 auto;">
+    <h1 class="page-title">
+        <i class="fas fa-file-invoice-dollar"></i>
+        编辑费用记录
+    </h1>
+    
+    <!-- 显示消息 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+        <div class="form-group mb-4">
+            <label for="amount" class="form-label">金额 *</label>
+            <input type="number" id="amount" name="amount" step="0.01" value="{{ expense.amount }}" required class="form-control">
+        </div>
+        <div class="form-group mb-4">
+            <label for="expense_type" class="form-label">费用类型 *</label>
+            <select id="expense_type" name="expense_type" required class="form-control">
+                <option value="办公费" {% if expense.expense_type == '办公费' %}selected{% endif %}>办公费</option>
+                <option value="差旅费" {% if expense.expense_type == '差旅费' %}selected{% endif %}>差旅费</option>
+                <option value="业务招待费" {% if expense.expense_type == '业务招待费' %}selected{% endif %}>业务招待费</option>
+                <option value="交通费" {% if expense.expense_type == '交通费' %}selected{% endif %}>交通费</option>
+                <option value="通讯费" {% if expense.expense_type == '通讯费' %}selected{% endif %}>通讯费</option>
+                <option value="水电费" {% if expense.expense_type == '水电费' %}selected{% endif %}>水电费</option>
+                <option value="租金" {% if expense.expense_type == '租金' %}selected{% endif %}>租金</option>
+                <option value="工资" {% if expense.expense_type == '工资' %}selected{% endif %}>工资</option>
+                <option value="税费" {% if expense.expense_type == '税费' %}selected{% endif %}>税费</option>
+                <option value="其他" {% if expense.expense_type == '其他' %}selected{% endif %}>其他</option>
+            </select>
+        </div>
+        <div class="form-group mb-4">
+            <label for="description" class="form-label">费用说明</label>
+            <textarea id="description" name="description" class="form-control" rows="5">{{ expense.description }}</textarea>
+        </div>
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                保存
+            </button>
+            <a href="{{ url_for('main.expense_list') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                取消
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">
+        <i class="fas fa-tachometer-alt"></i>
+        仪表盘
+    </h1>
+    
+    <!-- 统计信息 -->
+    <div class="grid-container">
+        <div class="stat-card">
+            <h3>本月收入</h3>
+            <div class="value" style="color: var(--success-color);">¥{{ "%.2f"|format(total_income) }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>本月支出</h3>
+            <div class="value" style="color: var(--danger-color);">¥{{ "%.2f"|format(total_expense) }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>本月利润</h3>
+            <div class="value" style="color: var(--accent-color);">¥{{ "%.2f"|format(total_profit) }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>待处理事项</h3>
+            <div class="value" style="color: var(--warning-color);">{{ total_pending }}</div>
+        </div>
+    </div>
+    
+    <!-- 最近交易记录 -->
+    <div class="content-card">
+        <h2 class="text-xl font-semibold mb-4">最近交易记录</h2>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>类型</th>
+                    <th>描述</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in recent_transactions %}
+                    <tr>
+                        <td>{{ transaction.date }}</td>
+                        <td>{{ transaction.type }}</td>
+                        <td>{{ transaction.description }}</td>
+                        <td>¥{{ transaction.amount }}</td>
+                        <td>
+                            <span class="status-badge status-{{ transaction.status }}">
+                                {% if transaction.status == 'pending' %}待审批{% endif %}
+                                {% if transaction.status == 'approved' %}已审批{% endif %}
+                                {% if transaction.status == 'paid' %}已付款{% endif %}
+                                {% if transaction.status == 'completed' %}已完成{% endif %}
+                                {% if transaction.status == 'cancelled' %}已取消{% endif %}
+                                {% if transaction.status == 'draft' %}草稿{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-secondary);">暂无交易记录</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

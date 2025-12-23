@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}凭证列表{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title"><i class="fas fa-file-invoice"></i>凭证列表</h1>
+        <a href="{{ url_for('main.voucher_add') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> 添加凭证
+        </a>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>凭证编号</th>
+                    <th>凭证日期</th>
+                    <th>摘要</th>
+                    <th>状态</th>
+                    <th>制单时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for voucher in vouchers %}
+                    <tr>
+                        <td>{{ voucher.id }}</td>
+                        <td>{{ voucher.voucher_number }}</td>
+                        <td>{{ voucher.date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ voucher.summary }}</td>
+                        <td>
+                            {% if voucher.status == 'draft' %}
+                                <span class="status-badge status-pending">草稿</span>
+                            {% elif voucher.status == 'approved' %}
+                                <span class="status-badge status-approved">已审核</span>
+                            {% elif voucher.status == 'posted' %}
+                                <span class="status-badge status-paid">已过账</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ voucher.create_time.strftime('%Y-%m-%d') }}</td>
+                        <td class="actions">
+                            <a href="{{ url_for('main.voucher_view', id=voucher.id) }}" class="btn btn-sm btn-info me-2">
+                                <i class="fas fa-eye"></i> 查看
+                            </a>
+                            {% if voucher.status == 'draft' %}
+                                {% if session['role'] == 'admin' %}
+                                    <a href="{{ url_for('main.voucher_approve', id=voucher.id) }}" class="btn btn-sm btn-warning me-2">
+                                        <i class="fas fa-check"></i> 审核
+                                    </a>
+                                    <a href="{{ url_for('main.voucher_delete', id=voucher.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('确定要删除这个凭证吗？')">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </a>
+                                {% endif %}
+                            {% elif voucher.status == 'approved' %}
+                                {% if session['role'] == 'admin' %}
+                                    <a href="{{ url_for('main.voucher_post', id=voucher.id) }}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-upload"></i> 过账
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}财务报表列表{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">
+        <i class="fas fa-chart-line"></i>
+        财务报表
+    </h1>
+    
+    <div class="grid-container">
+        <a href="{{ url_for('main.balance_sheet') }}" class="content-card report-card">
+            <div class="card-icon balance-sheet">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <h3>资产负债表</h3>
+            <p>反映企业在特定日期的财务状况</p>
+            <div class="card-footer">
+                <span class="btn btn-primary">查看报表</span>
+            </div>
+        </a>
+        
+        <a href="{{ url_for('main.profit_statement') }}" class="content-card report-card">
+            <div class="card-icon profit-statement">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <h3>利润表</h3>
+            <p>反映企业在一定会计期间的经营成果</p>
+            <div class="card-footer">
+                <span class="btn btn-primary">查看报表</span>
+            </div>
+        </a>
+        
+        <a href="{{ url_for('main.cash_flow') }}" class="content-card report-card">
+            <div class="card-icon cash-flow">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3>现金流量表</h3>
+            <p>反映企业在一定会计期间的现金和现金等价物流入和流出</p>
+            <div class="card-footer">
+                <span class="btn btn-primary">查看报表</span>
+            </div>
+        </a>
+        
+        <a href="{{ url_for('main.account_balance') }}" class="content-card report-card">
+            <div class="card-icon account-balance">
+                <i class="fas fa-list"></i>
+            </div>
+            <h3>科目余额表</h3>
+            <p>反映企业在一定期间内所有会计科目的余额</p>
+            <div class="card-footer">
+                <span class="btn btn-primary">查看报表</span>
+            </div>
+        </a>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+        
+        .report-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            text-decoration: none;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,252,1) 100%);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .report-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 30px;
+            color: white;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+        
+        .report-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-icon.balance-sheet {
+            background: linear-gradient(135deg, var(--primary-color), #2c7be5);
+        }
+        
+        .card-icon.profit-statement {
+            background: linear-gradient(135deg, var(--success-color), #28a745);
+        }
+        
+        .card-icon.cash-flow {
+            background: linear-gradient(135deg, var(--warning-color), #ffc107);
+        }
+        
+        .card-icon.account-balance {
+            background: linear-gradient(135deg, var(--info-color), #17a2b8);
+        }
+        
+        .report-card h3 {
+            margin: 0 0 12px 0;
+            color: var(--text-primary);
+            font-size: 1.35rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .report-card p {
+            margin: 0 0 auto 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card-footer {
+            margin-top: 25px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card-footer .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-footer .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .report-card {
+                padding: 25px;
+            }
+        }
+    </style>
+{% endblock %}

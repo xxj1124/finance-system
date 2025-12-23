@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}添加销售订单 - 销售管理{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">
+        <i class="fas fa-plus-circle"></i>
+        添加销售订单
+    </h1>
+    
+    <!-- 显示消息 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="content-card">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="customer_id" class="form-label">客户 *</label>
+                <select id="customer_id" class="form-control" name="customer_id" required>
+                    {% for customer in customers %}
+                        <option value="{{ customer.id }}">{{ customer.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="tax_rate" class="form-label">税率 *</label>
+                <input type="number" class="form-control" id="tax_rate" name="tax_rate" step="0.01" value="0.13" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="payment_method" class="form-label">支付方式 *</label>
+                <input type="text" class="form-control" id="payment_method" name="payment_method" placeholder="如：银行转账、现金" required>
+            </div>
+            
+            <h3 class="text-lg font-semibold mb-4">订单项目</h3>
+            <div id="items-container">
+                <div class="item-row d-grid grid-template-columns-2fr-1fr-1fr-1fr-auto gap-3 mb-3 align-items-end">
+                    <div class="mb-3">
+                        <label class="form-label">项目名称</label>
+                        <input type="text" class="form-control" name="item_name[]" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">数量</label>
+                        <input type="number" class="form-control" name="quantity[]" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">单价</label>
+                        <input type="number" class="form-control" name="unit_price[]" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">金额</label>
+                        <input type="number" class="form-control" name="amount[]" step="0.01" readonly>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-success mb-4" onclick="addItem()">
+                <i class="fas fa-plus"></i> 添加项目
+            </button>
+            
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+                <a href="{{ url_for('main.sales_order_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> 取消
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // 添加项目
+        function addItem() {
+            const container = document.getElementById('items-container');
+            const row = document.createElement('div');
+            row.className = 'item-row d-grid grid-template-columns-2fr-1fr-1fr-1fr-auto gap-3 mb-3 align-items-end';
+            row.innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label">项目名称</label>
+                    <input type="text" class="form-control" name="item_name[]" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">数量</label>
+                    <input type="number" class="form-control" name="quantity[]" step="0.01" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">单价</label>
+                    <input type="number" class="form-control" name="unit_price[]" step="0.01" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">金额</label>
+                    <input type="number" class="form-control" name="amount[]" step="0.01" readonly>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
+                    <i class="fas fa-trash"></i> 删除
+                </button>
+            `;
+            container.appendChild(row);
+            
+            // 添加事件监听器
+            const inputs = row.querySelectorAll('input[name="quantity[]"], input[name="unit_price[]"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateAmount);
+            });
+        }
+        
+        // 删除项目
+        function removeItem(button) {
+            const row = button.parentElement;
+            row.remove();
+        }
+        
+        // 计算金额
+        function calculateAmount(e) {
+            const row = e.target.parentElement.parentElement;
+            const quantityInput = row.querySelector('input[name="quantity[]"]');
+            const unitPriceInput = row.querySelector('input[name="unit_price[]"]');
+            const amountInput = row.querySelector('input[name="amount[]"]');
+            
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const unitPrice = parseFloat(unitPriceInput.value) || 0;
+            const amount = quantity * unitPrice;
+            
+            amountInput.value = amount.toFixed(2);
+        }
+        
+        // 为现有项目添加事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInputs = document.querySelectorAll('input[name="quantity[]"]');
+            const unitPriceInputs = document.querySelectorAll('input[name="unit_price[]"]');
+            
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', calculateAmount);
+            });
+            
+            unitPriceInputs.forEach(input => {
+                input.addEventListener('input', calculateAmount);
+            });
+        });
+    </script>
+{% endblock %}

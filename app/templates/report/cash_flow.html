@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}现金流量表{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">
+        <i class="fas fa-exchange-alt"></i>
+        现金流量表
+    </h1>
+    
+    <div class="content-card" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+        <!-- 渐变标题栏 -->
+        <div class="report-header" style="
+            padding: 25px 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        ">
+            <div class="report-info">
+                <h2 style="margin: 0 0 8px 0; font-size: 1.8rem; font-weight: 700;">现金流量表</h2>
+                <div class="report-period" style="font-size: 16px; opacity: 0.9;">
+                    编制期间: {{ start_date.strftime('%Y年%m月%d日') }} 至 {{ end_date.strftime('%Y年%m月%d日') }}
+                </div>
+            </div>
+            
+            <!-- 半透明表单背景 -->
+            <form method="POST" class="form-inline" style="
+                background: rgba(255, 255, 255, 0.2);
+                padding: 15px 20px;
+                border-radius: 8px;
+                backdrop-filter: blur(10px);
+            ">
+                <div class="form-group" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <label for="start_date" style="margin: 0; color: white; font-weight: 500;">开始日期:</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ start_date.strftime('%Y-%m-%d') }}" required style="
+                        padding: 8px 12px;
+                        border: none;
+                        border-radius: 4px;
+                        background: white;
+                        color: var(--text-primary);
+                        font-size: 14px;
+                    ">
+                    <label for="end_date" style="margin: 0; color: white; font-weight: 500;">结束日期:</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ end_date.strftime('%Y-%m-%d') }}" required style="
+                        padding: 8px 12px;
+                        border: none;
+                        border-radius: 4px;
+                        background: white;
+                        color: var(--text-primary);
+                        font-size: 14px;
+                    ">
+                    <button type="submit" class="btn btn-primary" style="
+                        background: linear-gradient(135deg, #ffffff, #f0f4ff);
+                        color: var(--primary-color);
+                        border: none;
+                        padding: 8px 20px;
+                        border-radius: 25px;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    ">
+                        <i class="fas fa-chart-line"></i> 生成报表
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="report-content" style="padding: 30px;">
+            <div class="report-section">
+                <h3 class="section-title" style="
+                    margin: 0 0 25px 0;
+                    color: var(--text-primary);
+                    font-size: 1.5rem;
+                    padding-bottom: 12px;
+                    border-bottom: 3px solid var(--primary-color);
+                    display: inline-block;
+                ">
+                    <i class="fas fa-file-alt"></i> 现金流量表
+                </h3>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped" style="
+                        width: 100%;
+                        border-collapse: collapse;
+                        background: white;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                    ">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, var(--bg-light), #f0f4ff);">
+                                <th style="
+                                    padding: 15px 20px;
+                                    text-align: left;
+                                    font-weight: 700;
+                                    color: var(--text-primary);
+                                    border-bottom: 2px solid var(--border-color);
+                                    font-size: 14px;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                ">项目</th>
+                                <th class="text-right" style="
+                                    padding: 15px 20px;
+                                    text-align: right;
+                                    font-weight: 700;
+                                    color: var(--text-primary);
+                                    border-bottom: 2px solid var(--border-color);
+                                    font-size: 14px;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                ">金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 经营活动 -->
+                            <tr class="section-header" style="
+                                font-weight: 700;
+                                background: linear-gradient(135deg, rgba(200, 247, 197, 0.8) 0%, rgba(159, 226, 203, 0.8) 100%) !important;
+                                border-left: 5px solid var(--success-color);
+                                transition: all 0.3s ease;
+                            ">
+                                <td colspan="2" style="padding: 15px 20px; font-size: 16px;">一、经营活动产生的现金流量</td>
+                            </tr>
+                            <tr style="transition: all 0.3s ease; cursor: pointer;">
+                                <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">销售商品、提供劳务收到的现金</td>
+                                <td class="text-right" style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); font-weight: 600;">{{ "%.2f"|format(cash_sales) }}</td>
+                            </tr>
+                            <tr style="transition: all 0.3s ease; cursor: pointer;">
+                                <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">支付的各项税费</td>
+                                <td class="text-right" style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); font-weight: 600;">{{ "%.2f"|format(cash_expenses) }}</td>
+                            </tr>
+                            <tr class="table-primary total-row" style="
+                                font-weight: bold;
+                                background: linear-gradient(135deg, rgba(255, 245, 238, 0.8) 0%, rgba(255, 235, 205, 0.8) 100%) !important;
+                                border-top: 2px solid var(--primary-color);
+                            ">
+                                <td style="padding: 15px 20px; font-weight: 700;">经营活动产生的现金流量净额</td>
+                                <td class="text-right" style="padding: 15px 20px; font-weight: 700;">{{ "%.2f"|format(operating_cash_flow) }}</td>
+                            </tr>
+                            
+                            <!-- 投资活动 -->
+                            <tr class="section-header" style="
+                                font-weight: 700;
+                                background: linear-gradient(135deg, rgba(200, 247, 197, 0.8) 0%, rgba(159, 226, 203, 0.8) 100%) !important;
+                                border-left: 5px solid var(--success-color);
+                                transition: all 0.3s ease;
+                                margin-top: 10px;
+                            ">
+                                <td colspan="2" style="padding: 15px 20px; font-size: 16px;">二、投资活动产生的现金流量</td>
+                            </tr>
+                            <tr style="transition: all 0.3s ease; cursor: pointer;">
+                                <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">投资活动现金流入小计</td>
+                                <td class="text-right" style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">-</td>
+                            </tr>
+                            <tr style="transition: all 0.3s ease; cursor: pointer;">
+                                <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">投资活动现金流出小计</td>
+                                <td class="text-right" style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">-</td>
+                            </tr>
+                            <tr class="table-primary total-row" style="
+                                font-weight: bold;
+                                background: linear-gradient(135deg, rgba(255, 245, 238, 0.8) 0%, rgba(255, 235, 205, 0.8) 100%) !important;
+                                border-top: 2px solid var(--primary-color);
+                            ">
+                                <td style="padding: 15px 20px; font-weight: 700;">投资活动产生的现金流量净额</td>
+                                <td class="text-right" style="padding: 15px 20px; font-weight: 700;">{{ "%.2f"|format(investing_cash_flow) }}</td>
+                            </tr>
+                            
+                            <!-- 筹资活动 -->
+                            <tr class="section-header" style="
+                                font-weight: 700;
+                                background: linear-gradient(135deg, rgba(200, 247, 197, 0.8) 0%, rgba(159, 226, 203, 0.8) 100%) !important;
+                                border-left: 5px solid var(--success-color);
+                                transition: all 0.3s ease;
+                            ">
+                                <td colspan="2" style="padding: 15px 20px; font-size: 16px;">三、筹资活动产生的现金流量</td>
+                            </tr>
+                            <tr style="transition: all 0.3s ease; cursor: pointer;">
+                                <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">筹资活动现金流入小计</td>
+                                <td class="text-right" style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">-</td>
+                            </tr>
+                            <tr style="transition: all 0.3s ease; cursor: pointer;">
+                                <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">筹资活动现金流出小计</td>
+                                <td class="text-right" style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">-</td>
+                            </tr>
+                            <tr class="table-primary total-row" style="
+                                font-weight: bold;
+                                background: linear-gradient(135deg, rgba(255, 245, 238, 0.8) 0%, rgba(255, 235, 205, 0.8) 100%) !important;
+                                border-top: 2px solid var(--primary-color);
+                            ">
+                                <td style="padding: 15px 20px; font-weight: 700;">筹资活动产生的现金流量净额</td>
+                                <td class="text-right" style="padding: 15px 20px; font-weight: 700;">{{ "%.2f"|format(financing_cash_flow) }}</td>
+                            </tr>
+                            
+                            <!-- 现金及现金等价物净增加额 -->
+                            <tr class="section-header" style="
+                                font-weight: 700;
+                                background: linear-gradient(135deg, rgba(200, 247, 197, 0.8) 0%, rgba(159, 226, 203, 0.8) 100%) !important;
+                                border-left: 5px solid var(--success-color);
+                                transition: all 0.3s ease;
+                            ">
+                                <td colspan="2" style="padding: 15px 20px; font-size: 16px;">四、现金及现金等价物净增加额</td>
+                            </tr>
+                            <tr class="table-primary total-row" style="
+                                font-weight: bold;
+                                background: linear-gradient(135deg, rgba(255, 245, 238, 0.8) 0%, rgba(255, 235, 205, 0.8) 100%) !important;
+                                border-top: 2px solid var(--primary-color);
+                            ">
+                                <td style="padding: 15px 20px; font-weight: 700;">现金及现金等价物净增加额</td>
+                                <td class="text-right" style="padding: 15px 20px; font-weight: 700;">{{ "%.2f"|format(net_cash_flow) }}</td>
+                            </tr>
+                            
+                            <!-- 期初/期末余额 -->
+                            <tr style="transition: all 0.3s ease; cursor: pointer;">
+                                <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">期初现金及现金等价物余额</td>
+                                <td class="text-right" style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); font-weight: 600;">{{ "%.2f"|format(beginning_cash) }}</td>
+                            </tr>
+                            <tr class="table-warning total-row" style="
+                                font-weight: bold;
+                                background: linear-gradient(135deg, rgba(255, 231, 235, 0.8) 0%, rgba(255, 215, 223, 0.8) 100%) !important;
+                                border-top: 2px solid var(--warning-color);
+                            ">
+                                <td style="padding: 18px 20px; font-weight: 700; font-size: 16px;">期末现金及现金等价物余额</td>
+                                <td class="text-right" style="padding: 18px 20px; font-weight: 700; font-size: 16px;">{{ "%.2f"|format(ending_cash) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部按钮 -->
+        <div class="card-footer" style="
+            padding: 25px 30px;
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,252,1) 100%);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+        ">
+            <a href="{{ url_for('main.report_list') }}" class="btn btn-secondary" style="
+                padding: 10px 24px;
+                border: none;
+                border-radius: 25px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                background: linear-gradient(135deg, #6c757d, #495057);
+                color: white;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            ">
+                <i class="fas fa-arrow-left"></i> 返回报表列表
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary" style="
+                padding: 10px 24px;
+                border: none;
+                border-radius: 25px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                background: linear-gradient(135deg, #6c757d, #495057);
+                color: white;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            ">
+                <i class="fas fa-home"></i> 返回首页
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* 表格行悬停效果 */
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(250, 250, 255, 1) 0%, rgba(240, 244, 255, 1) 100%);
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* 平滑过渡效果 */
+        .table tbody tr {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* 按钮悬停效果 */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .report-header {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 20px;
+            }
+            
+            .form-group {
+                justify-content: center;
+            }
+            
+            .report-content {
+                padding: 20px 15px !important;
+            }
+            
+            .table th,
+            .table td {
+                padding: 12px 15px !important;
+            }
+        }
+    </style>
+{% endblock %}

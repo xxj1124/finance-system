@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}科目余额表{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">
+        <i class="fas fa-book-keeping"></i>
+        科目余额表
+    </h1>
+    
+    <div class="content-card" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+        <!-- 渐变标题栏 -->
+        <div class="report-header" style="
+            padding: 25px 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        ">
+            <div class="report-info">
+                <h2 style="margin: 0 0 8px 0; font-size: 1.8rem; font-weight: 700;">科目余额表</h2>
+                <div class="report-period" style="font-size: 16px; opacity: 0.9;">
+                    编制日期: {{ report_date.strftime('%Y年%m月%d日') }}
+                </div>
+            </div>
+            
+            <!-- 半透明表单背景 -->
+            <form method="POST" class="form-inline" style="
+                background: rgba(255, 255, 255, 0.2);
+                padding: 15px 20px;
+                border-radius: 8px;
+                backdrop-filter: blur(10px);
+            ">
+                <div class="form-group" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <label for="report_date" style="margin: 0; color: white; font-weight: 500;">选择报告日期:</label>
+                    <input type="date" id="report_date" name="report_date" value="{{ report_date.strftime('%Y-%m-%d') }}" required style="
+                        padding: 8px 12px;
+                        border: none;
+                        border-radius: 4px;
+                        background: white;
+                        color: var(--text-primary);
+                        font-size: 14px;
+                    ">
+                    <button type="submit" class="btn btn-primary" style="
+                        background: linear-gradient(135deg, #ffffff, #f0f4ff);
+                        color: var(--primary-color);
+                        border: none;
+                        padding: 8px 20px;
+                        border-radius: 25px;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    ">
+                        <i class="fas fa-chart-line"></i> 生成报表
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="report-content" style="padding: 30px;">
+            <div class="report-section">
+                <h3 class="section-title" style="
+                    margin: 0 0 25px 0;
+                    color: var(--text-primary);
+                    font-size: 1.5rem;
+                    padding-bottom: 12px;
+                    border-bottom: 3px solid var(--primary-color);
+                    display: inline-block;
+                ">
+                    <i class="fas fa-file-alt"></i> 科目余额表
+                </h3>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped" style="
+                        width: 100%;
+                        border-collapse: collapse;
+                        background: white;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                    ">
+                        <thead>
+                            <tr style="background: linear-gradient(135deg, var(--bg-light), #f0f4ff);">
+                                <th style="
+                                    padding: 15px 20px;
+                                    text-align: left;
+                                    font-weight: 700;
+                                    color: var(--text-primary);
+                                    border-bottom: 2px solid var(--border-color);
+                                    font-size: 14px;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                ">科目编码</th>
+                                <th style="
+                                    padding: 15px 20px;
+                                    text-align: left;
+                                    font-weight: 700;
+                                    color: var(--text-primary);
+                                    border-bottom: 2px solid var(--border-color);
+                                    font-size: 14px;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                ">科目名称</th>
+                                <th style="
+                                    padding: 15px 20px;
+                                    text-align: left;
+                                    font-weight: 700;
+                                    color: var(--text-primary);
+                                    border-bottom: 2px solid var(--border-color);
+                                    font-size: 14px;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                ">科目类型</th>
+                                <th class="amount-col" style="
+                                    padding: 15px 20px;
+                                    text-align: right;
+                                    font-weight: 700;
+                                    color: var(--text-primary);
+                                    border-bottom: 2px solid var(--border-color);
+                                    font-size: 14px;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                ">余额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set current_type = None %}
+                            {% for account in accounts %}
+                                {% set account_type_name = {
+                                    'asset': '资产',
+                                    'liability': '负债',
+                                    'equity': '所有者权益',
+                                    'income': '收入',
+                                    'expense': '费用',
+                                    'cost': '成本'
+                                }[account.type] %}
+                                
+                                {% if account.type != current_type %}
+                                <tr class="section-header" style="
+                                    font-weight: 700;
+                                    background: linear-gradient(135deg, rgba(200, 247, 197, 0.8) 0%, rgba(159, 226, 203, 0.8) 100%) !important;
+                                    border-left: 5px solid var(--success-color);
+                                    transition: all 0.3s ease;
+                                ">
+                                    <td colspan="4" style="padding: 15px 20px; font-size: 16px; text-align: left !important;">{{ account_type_name }}</td>
+                                </tr>
+                                {% set current_type = account.type %}
+                                {% endif %}
+                                
+                                <tr style="transition: all 0.3s ease; cursor: pointer;">
+                                    <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); font-weight: 600;">{{ account.code }}</td>
+                                    <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">{{ account.name }}</td>
+                                    <td style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">
+                                        <span class="account-type" style="
+                                            display: inline-block;
+                                            padding: 4px 12px;
+                                            border-radius: 15px;
+                                            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                                            color: white;
+                                            font-size: 12px;
+                                            font-weight: 600;
+                                        ">
+                                            {{ account_type_name }}
+                                        </span>
+                                    </td>
+                                    <td class="amount-col" style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); font-weight: 600;">{{ "%.2f"|format(account.calculated_balance) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部按钮 -->
+        <div class="card-footer" style="
+            padding: 25px 30px;
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,252,1) 100%);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+        ">
+            <a href="{{ url_for('main.report_list') }}" class="btn btn-secondary" style="
+                padding: 10px 24px;
+                border: none;
+                border-radius: 25px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                background: linear-gradient(135deg, #6c757d, #495057);
+                color: white;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            ">
+                <i class="fas fa-arrow-left"></i> 返回报表列表
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary" style="
+                padding: 10px 24px;
+                border: none;
+                border-radius: 25px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                background: linear-gradient(135deg, #6c757d, #495057);
+                color: white;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            ">
+                <i class="fas fa-home"></i> 返回首页
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* 表格行悬停效果 */
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(250, 250, 255, 1) 0%, rgba(240, 244, 255, 1) 100%);
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* 平滑过渡效果 */
+        .table tbody tr {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* 按钮悬停效果 */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        /* 金额列样式 */
+        .amount-col {
+            text-align: right !important;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .report-header {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 20px;
+            }
+            
+            .form-group {
+                justify-content: center;
+            }
+            
+            .report-content {
+                padding: 20px 15px !important;
+            }
+            
+            .table th,
+            .table td {
+                padding: 12px 15px !important;
+                font-size: 14px;
+            }
+            
+            .account-type {
+                padding: 3px 8px !important;
+                font-size: 11px !important;
+            }
+        }
+        
+        /* 科目类型标签颜色 */
+        .account-type {
+            transition: all 0.3s ease;
+        }
+        
+        .account-type:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+{% endblock %}

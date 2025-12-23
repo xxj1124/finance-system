@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}利润表{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">
+        <i class="fas fa-chart-bar"></i>
+        利润表
+    </h1>
+    
+    <div class="content-card">
+        <div class="report-header">
+            <div class="report-info">
+                <h2>利润表</h2>
+                <div class="report-period">
+                    编制期间: {{ start_date.strftime('%Y年%m月%d日') }} 至 {{ end_date.strftime('%Y年%m月%d日') }}
+                </div>
+            </div>
+            
+            <form method="POST" class="form-inline">
+                <div class="form-group">
+                    <label for="start_date">开始日期:</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ start_date.strftime('%Y-%m-%d') }}" required>
+                    <label for="end_date">结束日期:</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ end_date.strftime('%Y-%m-%d') }}" required>
+                    <button type="submit" class="btn btn-primary">生成报表</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="report-content">
+            <div class="report-section">
+                <h3 class="section-title">利润表</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>项目</th>
+                                <th>科目编码</th>
+                                <th class="text-right">金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-info section-header">
+                                <td colspan="3">一、营业收入</td>
+                            </tr>
+                            {% for account in income_accounts %}
+                            <tr>
+                                <td>{{ account.name }}</td>
+                                <td>{{ account.code }}</td>
+                                <td class="text-right">{{ "%.2f"|format(account_movements[account.code]) }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="table-primary total-row">
+                                <td>营业收入合计</td>
+                                <td></td>
+                                <td class="text-right">{{ "%.2f"|format(total_income) }}</td>
+                            </tr>
+                            
+                            <tr class="table-info section-header">
+                                <td colspan="3">二、营业成本</td>
+                            </tr>
+                            {% for account in cost_accounts %}
+                            <tr>
+                                <td>{{ account.name }}</td>
+                                <td>{{ account.code }}</td>
+                                <td class="text-right">{{ "%.2f"|format(account_movements[account.code]) }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="table-primary total-row">
+                                <td>营业成本合计</td>
+                                <td></td>
+                                <td class="text-right">{{ "%.2f"|format(total_cost) }}</td>
+                            </tr>
+                            
+                            <tr class="table-primary total-row">
+                                <td>营业毛利</td>
+                                <td></td>
+                                <td class="text-right">{{ "%.2f"|format(gross_profit) }}</td>
+                            </tr>
+                            
+                            <tr class="table-info section-header">
+                                <td colspan="3">三、营业费用</td>
+                            </tr>
+                            {% for account in expense_accounts %}
+                            <tr>
+                                <td>{{ account.name }}</td>
+                                <td>{{ account.code }}</td>
+                                <td class="text-right">{{ "%.2f"|format(account_movements[account.code]) }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="table-primary total-row">
+                                <td>营业费用合计</td>
+                                <td></td>
+                                <td class="text-right">{{ "%.2f"|format(total_expense) }}</td>
+                            </tr>
+                            
+                            <tr class="table-success total-row">
+                                <td>净利润</td>
+                                <td></td>
+                                <td class="text-right">{{ "%.2f"|format(net_profit) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-footer">
+            <a href="{{ url_for('main.report_list') }}" class="btn btn-secondary">返回报表列表</a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary" style="margin-left: 10px;">返回首页</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .content-card {
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,252,1) 100%);
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .report-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 25px 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .report-info h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .report-period {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .form-inline {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            flex-wrap: wrap;
+        }
+        
+        .form-group label {
+            margin: 0;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            padding: 10px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: white;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+        
+        .form-group .btn-primary {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .form-group .btn-primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .report-content {
+            padding: 0 30px 30px;
+        }
+        
+        .report-section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .report-section:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .section-title {
+            margin: 0 0 25px 0;
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            font-weight: 700;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--primary-color);
+            display: inline-block;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        .table th,
+        .table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, rgba(248, 249, 250, 1) 0%, rgba(241, 243, 245, 1) 100%);
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background: rgba(248, 249, 250, 0.7);
+        }
+        
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(250, 250, 255, 1) 0%, rgba(240, 244, 255, 1) 100%);
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-header {
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(200, 247, 197, 0.8) 0%, rgba(159, 226, 203, 0.8) 100%) !important;
+            border-left: 5px solid var(--success-color);
+        }
+        
+        .section-header:hover {
+            background: linear-gradient(135deg, rgba(200, 247, 197, 1) 0%, rgba(159, 226, 203, 1) 100%) !important;
+        }
+        
+        .text-right {
+            text-align: right !important;
+        }
+        
+        .total-row {
+            font-weight: 700;
+        }
+        
+        .table-primary.total-row {
+            background: linear-gradient(135deg, rgba(255, 245, 238, 0.8) 0%, rgba(255, 235, 205, 0.8) 100%) !important;
+            border-top: 2px solid var(--primary-color);
+        }
+        
+        .table-primary.total-row:hover {
+            background: linear-gradient(135deg, rgba(255, 245, 238, 1) 0%, rgba(255, 235, 205, 1) 100%) !important;
+        }
+        
+        .table-success.total-row {
+            background: linear-gradient(135deg, rgba(200, 247, 197, 0.8) 0%, rgba(159, 226, 203, 0.8) 100%) !important;
+            border-top: 2px solid var(--success-color);
+        }
+        
+        .table-success.total-row:hover {
+            background: linear-gradient(135deg, rgba(200, 247, 197, 1) 0%, rgba(159, 226, 203, 1) 100%) !important;
+        }
+        
+        .card-footer {
+            margin: 0 30px 30px;
+            padding: 25px;
+            background: rgba(248, 249, 250, 0.5);
+            border-radius: 8px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+        }
+        
+        .card-footer .btn-secondary {
+            background: linear-gradient(135deg, var(--bg-light), #e9ecef);
+            color: var(--text-primary);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-footer .btn-secondary:hover {
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .report-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .form-inline {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .form-inline {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .report-content, .card-footer {
+                padding: 0 20px 20px;
+            }
+            
+            .report-section {
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+        }
+    </style>
+{% endblock %}

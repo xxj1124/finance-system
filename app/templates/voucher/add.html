@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>添加凭证</title>
+    <style>
+        /* 现代财务系统配色方案 */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --border-color: #e1e8ed;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], input[type="date"], input[type="number"], select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+            background-color: var(--white);
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        /* 按钮样式 */
+        .button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            margin-right: 10px;
+            margin-bottom: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .add-btn {
+            background-color: var(--success-color);
+        }
+
+        .add-btn:hover {
+            background-color: #219a52;
+        }
+
+        .delete-btn {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 提示框样式 */
+        .flash {
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid var(--success-color);
+            color: #155724;
+        }
+
+        .danger {
+            background-color: #f8d7da;
+            border-left: 4px solid var(--danger-color);
+            color: #721c24;
+        }
+
+        /* 凭证分录容器 */
+        .entries-container {
+            margin-top: 35px;
+        }
+
+        /* 分录标题行 */
+        .entry-header {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 1fr 2fr auto;
+            gap: 12px;
+            font-weight: 600;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* 分录行样式 */
+        .entry-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 1fr 2fr auto;
+            gap: 12px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 12px;
+            align-items: end;
+            background-color: var(--white);
+            transition: var(--transition);
+        }
+
+        .entry-row:hover {
+            background-color: #f8f9ff;
+            border-color: #d0e3ff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 合计行 */
+        .total-row {
+            display: grid;
+            grid-template-columns: 4fr 1fr 1fr;
+            gap: 12px;
+            padding: 20px 15px;
+            font-weight: 600;
+            text-align: right;
+            margin-top: 25px;
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .entry-header,
+            .entry-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .total-row {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('main.voucher_list') }}" class="button">返回凭证列表</a>
+        <h1><i class="fas fa-file-invoice"></i>添加凭证</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="date">凭证日期 *</label>
+                <input type="date" id="date" name="date" value="{{ today }}" required>
+            </div>
+            <div class="form-group">
+                <label for="summary">摘要 *</label>
+                <input type="text" id="summary" name="summary" required>
+            </div>
+            
+            <div class="entries-container">
+                <h3>凭证分录</h3>
+                <button type="button" class="button add-btn" onclick="addEntry()">添加分录</button>
+                
+                <div class="entry-header">
+                    <div>科目编码</div>
+                    <div>科目名称</div>
+                    <div>借方金额</div>
+                    <div>贷方金额</div>
+                    <div>摘要</div>
+                    <div>操作</div>
+                </div>
+                
+                <div id="entries-container">
+                    <!-- 初始分录行 -->
+                    <div class="entry-row">
+                        <select name="account_code_0" required onchange="updateAccountName(this, 0)">
+                            <option value="">请选择科目</option>
+                            {% for account in accounts %}
+                                <option value="{{ account.code }}" data-name="{{ account.name }}">{{ account.code }} - {{ account.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="text" name="account_name_0" readonly placeholder="科目名称">
+                        <input type="number" name="debit_0" step="0.01" placeholder="0.00" oninput="calculateTotal()">
+                        <input type="number" name="credit_0" step="0.01" placeholder="0.00" oninput="calculateTotal()">
+                        <input type="text" name="description_0" placeholder="明细摘要">
+                        <button type="button" class="delete-btn" onclick="removeEntry(this)">删除</button>
+                    </div>
+                    
+                    <!-- 第二个初始分录行 -->
+                    <div class="entry-row">
+                        <select name="account_code_1" required onchange="updateAccountName(this, 1)">
+                            <option value="">请选择科目</option>
+                            {% for account in accounts %}
+                                <option value="{{ account.code }}" data-name="{{ account.name }}">{{ account.code }} - {{ account.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="text" name="account_name_1" readonly placeholder="科目名称">
+                        <input type="number" name="debit_1" step="0.01" placeholder="0.00" oninput="calculateTotal()">
+                        <input type="number" name="credit_1" step="0.01" placeholder="0.00" oninput="calculateTotal()">
+                        <input type="text" name="description_1" placeholder="明细摘要">
+                        <button type="button" class="delete-btn" onclick="removeEntry(this)">删除</button>
+                    </div>
+                </div>
+                
+                <div class="total-row">
+                    <div>合计</div>
+                    <div id="total-debit">0.00</div>
+                    <div id="total-credit">0.00</div>
+                </div>
+            </div>
+            
+            <input type="hidden" id="entry_count" name="entry_count" value="2">
+            
+            <div style="margin-top: 30px;">
+                <button type="submit" class="button">保存</button>
+                <a href="{{ url_for('main.voucher_list') }}" class="button">取消</a>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // 设置默认日期为今天
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        
+        let entryCount = 2;
+        
+        // 更新科目名称
+        function updateAccountName(selectElement, index) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const accountName = selectedOption.getAttribute('data-name');
+            document.querySelector(`input[name="account_name_${index}"]`).value = accountName;
+        }
+        
+        // 添加分录行
+        function addEntry() {
+            const container = document.getElementById('entries-container');
+            const entryRow = document.createElement('div');
+            entryRow.className = 'entry-row';
+            
+            let accountOptions = '';
+            {% for account in accounts %}
+                accountOptions += `<option value="{{ account.code }}" data-name="{{ account.name }}">{{ account.code }} - {{ account.name }}</option>`;
+            {% endfor %}
+            
+            entryRow.innerHTML = `
+                <select name="account_code_${entryCount}" required onchange="updateAccountName(this, ${entryCount})">
+                    <option value="">请选择科目</option>
+                    ${accountOptions}
+                </select>
+                <input type="text" name="account_name_${entryCount}" readonly placeholder="科目名称">
+                <input type="number" name="debit_${entryCount}" step="0.01" placeholder="0.00" oninput="calculateTotal()">
+                <input type="number" name="credit_${entryCount}" step="0.01" placeholder="0.00" oninput="calculateTotal()">
+                <input type="text" name="description_${entryCount}" placeholder="明细摘要">
+                <button type="button" class="delete-btn" onclick="removeEntry(this)">删除</button>
+            `;
+            
+            container.appendChild(entryRow);
+            entryCount++;
+            document.getElementById('entry_count').value = entryCount;
+        }
+        
+        // 删除分录行
+        function removeEntry(button) {
+            if (entryCount > 2) {
+                const entryRow = button.closest('.entry-row');
+                entryRow.remove();
+                entryCount--;
+                document.getElementById('entry_count').value = entryCount;
+                calculateTotal();
+            } else {
+                alert('凭证至少需要两行分录');
+            }
+        }
+        
+        // 计算借贷合计
+        function calculateTotal() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+            
+            for (let i = 0; i < entryCount; i++) {
+                const debitInput = document.querySelector(`input[name="debit_${i}"]`);
+                const creditInput = document.querySelector(`input[name="credit_${i}"]`);
+                
+                const debit = parseFloat(debitInput.value) || 0;
+                const credit = parseFloat(creditInput.value) || 0;
+                
+                totalDebit += debit;
+                totalCredit += credit;
+            }
+            
+            document.getElementById('total-debit').textContent = totalDebit.toFixed(2);
+            document.getElementById('total-credit').textContent = totalCredit.toFixed(2);
+        }
+    </script>
+</body>
+</html>

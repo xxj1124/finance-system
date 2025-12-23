@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}添加会计科目{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1 class="page-title">
+        <i class="fas fa-book-open"></i>添加会计科目
+    </h1>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('main.account_list') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>返回科目列表
+        </a>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="form-card">
+        <form method="POST">
+            <div class="form-group">
+                <label for="code" class="required-field">科目编码 *</label>
+                <input type="text" id="code" name="code" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="name" class="required-field">科目名称 *</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="type" class="required-field">科目类型 *</label>
+                <select id="type" name="type" class="form-control" required>
+                    <option value="asset">资产</option>
+                    <option value="liability">负债</option>
+                    <option value="equity">所有者权益</option>
+                    <option value="income">收入</option>
+                    <option value="expense">费用</option>
+                    <option value="cost">成本</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="parent_code">父科目编码</label>
+                <select id="parent_code" name="parent_code" class="form-control">
+                    <option value="">无</option>
+                    {% for account in parent_accounts %}
+                        <option value="{{ account.code }}">{{ account.code }} - {{ account.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="balance">初始余额</label>
+                <input type="number" id="balance" name="balance" step="0.01" value="0.00" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="description">科目描述</label>
+                <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>保存
+                </button>
+                <a href="{{ url_for('main.account_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>取消
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

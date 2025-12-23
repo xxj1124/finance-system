@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4"><i class="fas fa-chart-pie"></i>预算列表</h2>
+            <div class="mb-3">
+                <a href="{{ url_for('main.budget_add') }}" class="btn btn-primary">添加预算</a>
+                <a href="{{ url_for('main.budget_analysis') }}" class="btn btn-info ml-2">预算分析</a>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>部门</th>
+                        <th>年度</th>
+                        <th>预算金额</th>
+                        <th>已使用金额</th>
+                        <th>剩余金额</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for budget in budgets %}
+                    <tr>
+                        <td>{{ budget.department }}</td>
+                        <td>{{ budget.year }}</td>
+                        <td>{{ budget.budget_amount }}</td>
+                        <td>{{ budget.used_amount }}</td>
+                        <td>{{ budget.budget_amount - budget.used_amount }}</td>
+                        <td>
+                            {% if budget.status == 'draft' %}
+                                <span class="badge badge-secondary">草稿</span>
+                            {% elif budget.status == 'approved' %}
+                                <span class="badge badge-primary">已审批</span>
+                            {% elif budget.status == 'active' %}
+                                <span class="badge badge-success">已激活</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('main.budget_view', id=budget.id) }}" class="btn btn-sm btn-info">查看</a>
+                            {% if budget.status == 'draft' %}
+                                <a href="{{ url_for('main.budget_edit', id=budget.id) }}" class="btn btn-sm btn-warning">编辑</a>
+                                {% if session['role'] == 'admin' %}
+                                    <a href="{{ url_for('main.budget_approve', id=budget.id) }}" class="btn btn-sm btn-success">审批</a>
+                                    <a href="{{ url_for('main.budget_delete', id=budget.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('确定要删除这个预算吗？');">删除</a>
+                                {% endif %}
+                            {% elif budget.status == 'approved' %}
+                                {% if session['role'] == 'admin' %}
+                                    <a href="{{ url_for('main.budget_activate', id=budget.id) }}" class="btn btn-sm btn-success">激活</a>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

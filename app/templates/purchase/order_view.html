@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}采购订单详情 - 采购管理{% endblock %}
+
+{% block content %}
+            <a href="{{ url_for('main.purchase_order_list') }}" class="btn btn-secondary mt-3">返回列表</a>
+            
+            <h2><i class="fas fa-shopping-bag"></i>采购订单详情</h2>
+            
+            <div class="order-info row mt-4">
+                <div class="order-info-item col-md-6 border p-4 rounded shadow-sm bg-white">
+                    <h3>订单信息</h3>
+                    <p><strong>订单编号：</strong>{{ order.order_number }}</p>
+                    <p><strong>创建时间：</strong>{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    <p><strong>状态：</strong>
+                        <span class="status-{{ order.status }}">
+                            {% if order.status == 'pending' %}待审批{% endif %}
+                            {% if order.status == 'approved' %}已审批{% endif %}
+                            {% if order.status == 'paid' %}已付款{% endif %}
+                            {% if order.status == 'completed' %}已完成{% endif %}
+                            {% if order.status == 'cancelled' %}已取消{% endif %}
+                        </span>
+                    </p>
+                    <p><strong>支付方式：</strong>{{ order.payment_method }}</p>
+                </div>
+                
+                <div class="order-info-item col-md-6 border p-4 rounded shadow-sm bg-white">
+                    <h3>供应商信息</h3>
+                    <p><strong>供应商名称：</strong>{{ order.supplier.name }}</p>
+                    <p><strong>联系人：</strong>{{ order.supplier.contact }}</p>
+                    <p><strong>电话：</strong>{{ order.supplier.phone }}</p>
+                    <p><strong>邮箱：</strong>{{ order.supplier.email }}</p>
+                    <p><strong>地址：</strong>{{ order.supplier.address }}</p>
+                </div>
+            </div>
+            
+            <h3>订单明细</h3>
+            <table class="table table-striped mt-4">
+                <thead>
+                    <tr>
+                        <th>项目名称</th>
+                        <th>数量</th>
+                        <th>单价</th>
+                        <th>金额</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                    <tr>
+                        <td>{{ item.item_name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>¥{{ item.unit_price }}</td>
+                        <td>¥{{ item.amount }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="total-section mt-4 text-right">
+                <div>订单总额：¥{{ order.total_amount }}</div>
+                <div>税率：{{ order.tax_rate * 100 }}%</div>
+                <div>税额：¥{{ order.tax_amount }}</div>
+                <div>含税总额：¥{{ order.total_amount + order.tax_amount }}</div>
+            </div>
+            
+            <!-- 订单操作按钮 -->
+            <div class="mt-4">
+                {% if order.status == 'pending' %}
+                    <a href="{{ url_for('main.purchase_order_approve', order_id=order.id) }}" class="btn btn-primary">审批</a>
+                    <a href="{{ url_for('main.purchase_order_cancel', order_id=order.id) }}" class="btn btn-danger">取消</a>
+                {% endif %}
+                {% if order.status == 'approved' or order.status == 'paid' %}
+                    <a href="{{ url_for('main.purchase_order_complete', order_id=order.id) }}" class="btn btn-primary">完成</a>
+                {% endif %}
+            </div>
+{% endblock %}

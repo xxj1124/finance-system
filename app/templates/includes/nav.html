@@ -1,0 +1,89 @@
+<style>
+    /* 简化的下拉菜单样式 */
+    .sidebar .dropdown-menu {
+        display: none;
+        background-color: rgba(52, 73, 94, 0.95);
+        padding: 5px 0;
+        margin: 5px 0;
+    }
+    
+    .sidebar .dropdown-menu.show {
+        display: block;
+    }
+    
+    .sidebar .dropdown-menu li a {
+        padding: 8px 32px;
+        font-size: 14px;
+        display: block;
+    }
+    
+    /* 确保下拉菜单箭头显示 */
+    .sidebar .dropdown > a::after {
+        content: "▼";
+        margin-left: 8px;
+        font-size: 12px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 添加下拉菜单点击切换功能
+        const dropdownToggles = document.querySelectorAll('.sidebar .dropdown > a');
+        
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const dropdown = this.parentElement;
+                const menu = dropdown.querySelector('.dropdown-menu');
+                
+                // 关闭其他下拉菜单
+                document.querySelectorAll('.sidebar .dropdown-menu').forEach(m => {
+                    if (m !== menu) {
+                        m.classList.remove('show');
+                    }
+                });
+                
+                // 切换当前下拉菜单
+                menu.classList.toggle('show');
+            });
+        });
+        
+        // 点击页面其他地方关闭下拉菜单
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.sidebar .dropdown')) {
+                document.querySelectorAll('.sidebar .dropdown-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+    });
+</script>
+<nav class="sidebar">
+    <ul>
+        <li class="nav-header">主导航</li>
+        <li><a href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> 首页</a></li>
+        
+        <li class="nav-header">业务管理</li>
+        <li><a href="{{ url_for('main.supplier_list') }}"><i class="fas fa-shopping-cart"></i> 采购管理</a></li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle"><i class="fas fa-users"></i> 销售管理</a>
+            <ul class="dropdown-menu">
+                <li><a href="{{ url_for('main.customer_list') }}"><i class="fas fa-users"></i> 客户管理</a></li>
+                <li><a href="{{ url_for('main.sales_order_list') }}"><i class="fas fa-shopping-cart"></i> 销售订单</a></li>
+            </ul>
+        </li>
+        <li><a href="{{ url_for('main.expense_list') }}"><i class="fas fa-receipt"></i> 费用管理</a></li>
+        
+        <li class="nav-header">财务管理</li>
+        <li><a href="{{ url_for('main.account_list') }}"><i class="fas fa-book"></i> 会计科目</a></li>
+        <li><a href="{{ url_for('main.voucher_list') }}"><i class="fas fa-file-alt"></i> 凭证管理</a></li>
+        <li><a href="{{ url_for('main.voucher_add') }}"><i class="fas fa-plus-circle"></i> 新增凭证</a></li>
+        <li><a href="{{ url_for('main.report_list') }}"><i class="fas fa-chart-bar"></i> 财务报表</a></li>
+        <li><a href="{{ url_for('main.budget_list') }}"><i class="fas fa-piggy-bank"></i> 预算管理</a></li>
+        <li><a href="{{ url_for('main.tax_list') }}"><i class="fas fa-percentage"></i> 税务管理</a></li>
+        
+        <li class="nav-header">系统设置</li>
+        <li><a href="{{ url_for('main.change_password') }}"><i class="fas fa-key"></i> 修改密码</a></li>
+        <li><a href="{{ url_for('main.logout') }}"><i class="fas fa-sign-out-alt"></i> 退出登录</a></li>
+    </ul>
+</nav>

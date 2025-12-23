@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>凭证详情</title>
+    <style>
+        /* 现代财务系统配色方案 */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --border-color: #e1e8ed;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        /* 按钮样式 */
+        .button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 凭证头部信息 */
+        .voucher-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 35px;
+            padding: 25px;
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .voucher-info {
+            margin-bottom: 18px;
+            font-size: 0.95rem;
+        }
+
+        .voucher-info:last-child {
+            margin-bottom: 0;
+        }
+
+        .voucher-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-right: 10px;
+            display: inline-block;
+            width: 90px;
+        }
+
+        /* 凭证分录容器 */
+        .entries-container {
+            margin-top: 40px;
+        }
+
+        /* 分录标题行 */
+        .entry-header {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr 1fr 2fr;
+            gap: 12px;
+            font-weight: 600;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* 分录行样式 */
+        .entry-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr 1fr 2fr;
+            gap: 12px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 12px;
+            background-color: var(--white);
+            transition: var(--transition);
+        }
+
+        .entry-row:hover {
+            background-color: #f8f9ff;
+            border-color: #d0e3ff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 合计行 */
+        .total-row {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
+            gap: 12px;
+            padding: 20px 15px;
+            font-weight: 600;
+            text-align: right;
+            margin-top: 25px;
+            margin-left: auto;
+            width: 50%;
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        /* 状态标签 */
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .draft {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .posted {
+            background-color: #cce7ff;
+            color: #004085;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .voucher-header {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .entry-header,
+            .entry-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .total-row {
+                grid-template-columns: 1fr;
+                width: 100%;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-file-invoice"></i>凭证详情</h1>
+        <a href="{{ url_for('main.voucher_list') }}" class="button">返回列表</a>
+        
+        <div class="voucher-header">
+            <div>
+                <div class="voucher-info">
+                    <span class="voucher-label">凭证编号:</span>
+                    <span>{{ voucher.voucher_number }}</span>
+                </div>
+                <div class="voucher-info">
+                    <span class="voucher-label">凭证日期:</span>
+                    <span>{{ voucher.date.strftime('%Y-%m-%d') }}</span>
+                </div>
+                <div class="voucher-info">
+                    <span class="voucher-label">制单时间:</span>
+                    <span>{{ voucher.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                </div>
+            </div>
+            <div>
+                <div class="voucher-info">
+                    <span class="voucher-label">摘要:</span>
+                    <span>{{ voucher.summary }}</span>
+                </div>
+                <div class="voucher-info">
+                    <span class="voucher-label">状态:</span>
+                    <span class="status {{ voucher.status }}">{{ voucher.status }}</span>
+                </div>
+            </div>
+            <div>
+                {% if voucher.approval_time %}
+                <div class="voucher-info">
+                    <span class="voucher-label">审核时间:</span>
+                    <span>{{ voucher.approval_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                </div>
+                {% endif %}
+                {% if voucher.post_time %}
+                <div class="voucher-info">
+                    <span class="voucher-label">过账时间:</span>
+                    <span>{{ voucher.post_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="entries-container">
+            <h3>凭证分录</h3>
+            
+            <div class="entry-header">
+                <div>科目编码</div>
+                <div>科目名称</div>
+                <div>借方金额</div>
+                <div>贷方金额</div>
+                <div>摘要</div>
+            </div>
+            
+            <div>
+                {% for entry in voucher.entries %}
+                    <div class="entry-row">
+                        <div>{{ entry.account_code }}</div>
+                        <div>{{ entry.account.name }}</div>
+                        <div>{{ entry.debit }}</div>
+                        <div>{{ entry.credit }}</div>
+                        <div>{{ entry.description or voucher.summary }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="total-row">
+                <div>合计</div>
+                <div>{{ voucher.entries | sum(attribute='debit') }}</div>
+                <div>{{ voucher.entries | sum(attribute='credit') }}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

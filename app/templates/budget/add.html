@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <a href="{{ url_for('main.budget_list') }}" class="btn btn-secondary float-left">返回预算列表</a>
+                    <h2 class="text-center">添加预算</h2>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('main.budget_add') }}">
+                        <div class="form-group">
+                            <label for="department">部门</label>
+                            <input type="text" class="form-control" id="department" name="department" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">年度</label>
+                            <input type="number" class="form-control" id="year" name="year" value="{{ current_year }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="budget_amount">预算金额</label>
+                            <input type="number" step="0.01" class="form-control" id="budget_amount" name="budget_amount" min="0" required>
+                        </div>
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary btn-block">添加预算</button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('main.budget_list') }}">返回预算列表</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

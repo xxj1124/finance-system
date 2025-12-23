@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}资产负债表{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">
+        <i class="fas fa-balance-scale"></i>
+        资产负债表
+    </h1>
+    
+    <div class="content-card">
+        <div class="report-header">
+            <div class="report-info">
+                <h2>资产负债表</h2>
+                <div class="report-date">
+                    编制日期: {{ report_date.strftime('%Y年%m月%d日') }}
+                </div>
+            </div>
+            
+            <form method="POST" class="form-inline">
+                <div class="form-group">
+                    <label for="report_date">选择报告日期:</label>
+                    <input type="date" id="report_date" name="report_date" value="{{ report_date.strftime('%Y-%m-%d') }}" required>
+                    <button type="submit" class="btn btn-primary">生成报表</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="report-content">
+            <div class="report-section">
+                <h3 class="section-title">资产</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>科目编码</th>
+                                <th>科目名称</th>
+                                <th class="text-right">余额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in assets %}
+                            <tr>
+                                <td>{{ account.code }}</td>
+                                <td>{{ account.name }}</td>
+                                <td class="text-right">{{ "%.2f"|format(account.calculated_balance) }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="table-primary total-row">
+                                <td colspan="2" class="text-right">资产合计:</td>
+                                <td class="text-right">{{ "%.2f"|format(total_assets) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="report-section">
+                <h3 class="section-title">负债</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>科目编码</th>
+                                <th>科目名称</th>
+                                <th class="text-right">余额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in liabilities %}
+                            <tr>
+                                <td>{{ account.code }}</td>
+                                <td>{{ account.name }}</td>
+                                <td class="text-right">{{ "%.2f"|format(account.balance) }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="table-primary total-row">
+                                <td colspan="2" class="text-right">负债合计:</td>
+                                <td class="text-right">{{ "%.2f"|format(total_liabilities) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="report-section">
+                <h3 class="section-title">所有者权益</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>科目编码</th>
+                                <th>科目名称</th>
+                                <th class="text-right">余额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in equity %}
+                            <tr>
+                                <td>{{ account.code }}</td>
+                                <td>{{ account.name }}</td>
+                                <td class="text-right">{{ "%.2f"|format(account.balance) }}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>4103</td>
+                                <td>本年利润</td>
+                                <td class="text-right">{{ "%.2f"|format(current_profit) }}</td>
+                            </tr>
+                            <tr class="table-primary total-row">
+                                <td colspan="2" class="text-right">所有者权益合计(含本年利润):</td>
+                                <td class="text-right">{{ "%.2f"|format(adjusted_equity) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="balance-check">
+                {% if abs(total_assets - adjusted_total) < 0.01 %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        资产总计 = 负债及所有者权益总计: <span class="balanced">平衡</span>
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        资产总计 ≠ 负债及所有者权益总计: <span class="unbalanced">不平衡</span>
+                        <br>
+                        <small>资产总计: {{ "%.2f"|format(total_assets) }}, 负债+所有者权益(含本年利润): {{ "%.2f"|format(total_liabilities + adjusted_equity) }}, 本年利润: {{ "%.2f"|format(current_profit) }}</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card-footer">
+            <a href="{{ url_for('main.report_list') }}" class="btn btn-secondary">返回报表列表</a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary" style="margin-left: 10px;">返回首页</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .content-card {
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,252,1) 100%);
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .report-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 25px 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .report-info h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .report-date {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .form-inline {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+        
+        .form-group label {
+            margin: 0;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            padding: 10px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: white;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+        
+        .form-group .btn-primary {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .form-group .btn-primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .report-content {
+            padding: 0 30px 30px;
+        }
+        
+        .report-section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .report-section:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .section-title {
+            margin: 0 0 25px 0;
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            font-weight: 700;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--primary-color);
+            display: inline-block;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        .table th,
+        .table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, rgba(248, 249, 250, 1) 0%, rgba(241, 243, 245, 1) 100%);
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background: rgba(248, 249, 250, 0.7);
+        }
+        
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(250, 250, 255, 1) 0%, rgba(240, 244, 255, 1) 100%);
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .text-right {
+            text-align: right !important;
+        }
+        
+        .total-row {
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(255, 245, 238, 0.8) 0%, rgba(255, 235, 205, 0.8) 100%) !important;
+            border-top: 2px solid var(--primary-color);
+        }
+        
+        .total-row:hover {
+            background: linear-gradient(135deg, rgba(255, 245, 238, 1) 0%, rgba(255, 235, 205, 1) 100%) !important;
+        }
+        
+        .balance-check {
+            margin-top: 35px;
+            padding: 25px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .alert {
+            padding: 20px 25px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 6px;
+            background: currentColor;
+        }
+        
+        .alert i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(240, 253, 244, 1) 0%, rgba(220, 252, 231, 1) 100%);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+            color: var(--success-color);
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(254, 243, 242, 1) 0%, rgba(252, 231, 228, 1) 100%);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            color: var(--danger-color);
+        }
+        
+        .balanced, .unbalanced {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        
+        .card-footer {
+            margin: 0 30px 30px;
+            padding: 25px;
+            background: rgba(248, 249, 250, 0.5);
+            border-radius: 8px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+        }
+        
+        .card-footer .btn-secondary {
+            background: linear-gradient(135deg, var(--bg-light), #e9ecef);
+            color: var(--text-primary);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-footer .btn-secondary:hover {
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .report-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .form-inline {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .form-inline {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .report-content, .card-footer {
+                padding: 0 20px 20px;
+            }
+            
+            .report-section, .balance-check {
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+        }
+    </style>
+{% endblock %}
